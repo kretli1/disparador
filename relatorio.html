@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Disparo - Disparador PRO V2</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #00D95F;
+            --primary-dark: #00B050;
+            --secondary-color: #2f3349;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+
+            --bg-body: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #1a1a1a;
+            --bg-card: #2d2d30;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --border-color: #444444;
+            --light-color: #2d2d30;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        /* Header Styles */
+        .report-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="3" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+        }
+
+        .report-logo {
+            width: 180px;
+            height: auto;
+            margin-bottom: 1rem;
+        }
+
+        .report-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .report-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+
+        .report-date {
+            top: 2rem;
+            right: 2rem;
+            text-align: right;
+            opacity: 0.9;
+        }
+
+        /* Cards de Métricas */
+        .metric-card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-color);
+        }
+
+        .metric-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .metric-icon.success {
+            background: var(--success-color);
+        }
+
+        .metric-icon.danger {
+            background: var(--danger-color);
+        }
+
+        .metric-icon.warning {
+            background: var(--warning-color);
+        }
+
+        .metric-icon.info {
+            background: var(--info-color);
+        }
+
+        .metric-icon.primary {
+            background: var(--primary-color);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 0;
+        }
+
+        .metric-change {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .metric-change.positive {
+            color: var(--success-color);
+        }
+
+        .metric-change.negative {
+            color: var(--danger-color);
+        }
+
+        /* Gráficos */
+        .chart-container {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .chart-canvas {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 18px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--primary-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.75rem;
+            top: 1rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            border: 3px solid var(--bg-body);
+        }
+
+        .timeline-time {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-content h6 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-content p {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* Tabela Detalhada */
+        .details-table {
+            background: var(--bg-card);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-responsive {
+            border-radius: 15px;
+        }
+
+        .table th {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1rem;
+        }
+
+        .table td {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-color: var(--border-color);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-error {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger-color);
+        }
+
+        /* Ações */
+        .action-buttons {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .action-btn {
+            margin: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-pdf {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-email {
+            background: var(--info-color);
+            color: white;
+        }
+
+        .btn-share {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-excel {
+            background: var(--success-color);
+            color: white;
+        }
+
+        /* Insights */
+        .insights-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .insight-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .insight-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .report-title {
+                font-size: 2rem;
+            }
+
+            .report-date {
+                position: static;
+                text-align: left;
+                margin-top: 1rem;
+            }
+
+            .metric-value {
+                font-size: 2rem;
+            }
+
+            .chart-canvas {
+                height: 250px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+
+            .action-buttons,
+            .theme-toggle,
+            .no-print {
+                display: none !important;
+            }
+
+            .report-header {
+                background: #00D95F !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+
+            .metric-card,
+            .chart-container {
+                break-inside: avoid;
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* Controles da Tabela */
+        #tableControls {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #searchInput {
+            border-radius: 8px;
+        }
+
+        .input-group-text {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        /* Tabela Melhorada */
+        .details-table .table {
+            margin-bottom: 0;
+        }
+
+        .details-table .table td {
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .details-table .table tbody tr:hover {
+            background-color: rgba(0, 217, 95, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        /* Status Badges Melhorados */
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .status-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .status-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .status-error {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            color: white;
+        }
+
+        /* Container da Paginação */
+        #tablePagination {
+            margin: 2rem 0 1rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Estilo Principal da Paginação */
+        #tablePagination .pagination {
+            margin: 0;
+            padding: 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Items da Paginação */
+        #tablePagination .page-item {
+            margin: 0;
+            border: none;
+            background: transparent;
+        }
+
+        #tablePagination .page-item:first-child .page-link {
+            border-top-left-radius: 15px;
+            border-bottom-left-radius: 15px;
+        }
+
+        #tablePagination .page-item:last-child .page-link {
+            border-top-right-radius: 15px;
+            border-bottom-right-radius: 15px;
+        }
+
+        /* Links da Paginação */
+        #tablePagination .page-link {
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 0.75rem 1rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            min-width: 40px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            overflow: hidden;
+        }
+
+        /* Hover Effect */
+        #tablePagination .page-link:hover {
+            background: linear-gradient(135deg, rgba(0, 217, 95, 0.1), rgba(0, 217, 95, 0.2));
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 217, 95, 0.2);
+        }
+
+        /* Estado Ativo */
+        #tablePagination .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            font-weight: 600;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0, 217, 95, 0.4);
+            position: relative;
+        }
+
+        /* Efeito Ripple no Ativo */
+        #tablePagination .page-item.active .page-link::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            transform: translate(-50%, -50%) scale(0);
+            border-radius: 50%;
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: translate(-50%, -50%) scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Estado Desabilitado */
+        #tablePagination .page-item.disabled .page-link {
+            color: var(--text-secondary);
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: transparent;
+        }
+
+        #tablePagination .page-item.disabled .page-link:hover {
+            background: transparent;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Botões de Navegação (Anterior/Próximo) */
+        #tablePagination .page-item:first-child .page-link,
+        #tablePagination .page-item:last-child .page-link {
+            padding: 0.75rem 1.25rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+        }
+
+        #tablePagination .page-item:first-child .page-link:hover,
+        #tablePagination .page-item:last-child .page-link:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Ícones dos Botões */
+        #tablePagination .page-link i {
+            font-size: 0.9rem;
+            transition: transform 0.3s ease;
+        }
+
+        #tablePagination .page-link:hover i {
+            transform: scale(1.1);
+        }
+
+        /* Elipses (...) */
+        #tablePagination .page-item.disabled .page-link {
+            padding: 0.75rem 0.5rem;
+            font-weight: bold;
+            color: var(--text-secondary);
+        }
+
+        /* Informações de Página (opcional) */
+        .pagination-info {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .pagination-info i {
+            color: var(--primary-color);
+        }
+
+        /* Versão Compacta para Mobile */
+        @media (max-width: 768px) {
+            #tablePagination {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            #tablePagination .pagination {
+                flex-wrap: wrap;
+                border-radius: 12px;
+                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            #tablePagination .page-link {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.85rem;
+                min-width: 35px;
+            }
+
+            /* Ocultar números intermediários no mobile */
+            #tablePagination .page-item:not(.active):not(:first-child):not(:last-child):not(.disabled) {
+                display: none;
+            }
+
+            /* Mostrar apenas primeira, ativa, última e navegação */
+            #tablePagination .page-item.active,
+            #tablePagination .page-item:first-child,
+            #tablePagination .page-item:last-child,
+            #tablePagination .page-item.disabled {
+                display: flex;
+            }
+
+            .pagination-info {
+                order: -1;
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+
+        /* Efeitos de Loading (opcional) */
+        #tablePagination.loading .page-link {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        #tablePagination.loading .page-item.active .page-link {
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+
+        /* Animação de Entrada */
+        #tablePagination .pagination {
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Estilo para Números Grandes */
+        #tablePagination .page-link[data-page] {
+            position: relative;
+            overflow: hidden;
+        }
+
+        #tablePagination .page-link[data-page]::after {
+            content: attr(data-page);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.1;
+            font-size: 2rem;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Tema Escuro */
+        [data-theme="dark"] #tablePagination .pagination {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="dark"] #tablePagination .page-link:hover {
+            background: linear-gradient(135deg, rgba(0, 217, 95, 0.2), rgba(0, 217, 95, 0.3));
+        }
+
+        [data-theme="dark"] #tablePagination .page-item:first-child .page-link,
+        [data-theme="dark"] #tablePagination .page-item:last-child .page-link {
+            background: linear-gradient(135deg, #343a40, #495057);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .pagination-info {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Micro-interações */
+        #tablePagination .page-link:active {
+            transform: translateY(0) scale(0.95);
+            transition: transform 0.1s ease;
+        }
+
+        #tablePagination .page-item.active .page-link:active {
+            transform: translateY(-1px) scale(0.95);
+        }
+
+        /* Indicador de Progresso (opcional) */
+        .pagination-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            background: var(--primary-color);
+            border-radius: 1px;
+            transition: width 0.3s ease;
+        }
+
+        /* Estados de Focus para Acessibilidade */
+        #tablePagination .page-link:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+            z-index: 10;
+        }
+
+        #tablePagination .page-item.active .page-link:focus {
+            outline-color: white;
+        }
+
+        /* Timeline Melhorada */
+        .timeline-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-stats {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-mini {
+            text-align: center;
+            padding: 0.5rem;
+            background: var(--light-color);
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-mini:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Timeline Items Melhorados */
+        .timeline-item.enhanced {
+            position: relative;
+            margin-bottom: 1.5rem;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item.enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .timeline-item.enhanced::before {
+            display: none;
+            /* Remove o marcador padrão */
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -2rem;
+            top: 1rem;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            border: 3px solid var(--bg-body);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            z-index: 2;
+        }
+
+        .timeline-time {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .timeline-title {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .timeline-desc {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .timeline-footer {
+            background: var(--light-color);
+            border-radius: 8px;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Responsivo - Tabela */
+        @media (max-width: 768px) {
+            #tableControls .row {
+                gap: 0.5rem;
+            }
+
+            #tableControls .col-md-6,
+            #tableControls .col-md-3 {
+                margin-bottom: 0.5rem;
+            }
+
+            .details-table {
+                font-size: 0.875rem;
+            }
+
+            .status-badge {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Responsivo - Timeline */
+        @media (max-width: 768px) {
+            .timeline-marker {
+                left: -1.5rem;
+                width: 30px;
+                height: 30px;
+                font-size: 0.8rem;
+            }
+
+            .timeline-item.enhanced {
+                margin-left: 0.5rem;
+                padding: 0.75rem;
+            }
+
+            .stat-mini {
+                padding: 0.25rem;
+            }
+
+            .stat-value {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Estados de Loading */
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* Animações de Entrada */
+        .timeline-item.enhanced {
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Badges da Instância */
+        .badge {
+            font-weight: 500;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+        }
+
+        .bg-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+        }
+
+        /* Efeitos Hover nos Controles */
+        .form-select:hover,
+        .form-control:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 217, 95, 0.25);
+        }
+
+        /* Estilo para campos code (telefone) */
+        code {
+            background: rgba(0, 217, 95, 0.1);
+            color: var(--primary-dark);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header do Relatório -->
+    <header class="report-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <img src="img/logo.png" alt="Disparador PRO V2" class="report-logo rounded">
+                    <h1 class="report-title">Relatório de Disparo</h1>
+                    <p class="report-subtitle" id="reportSubtitle">Análise Detalhada da Campanha</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="report-date">
+                        <div><strong>Data do Relatório</strong></div>
+                        <div id="reportDate"></div>
+                        <div class="mt-2"><strong>Período Analisado</strong></div>
+                        <div id="reportPeriod"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Cards de Métricas Principais -->
+        <section class="mb-4">
+            <h2 class="mb-4">📊 Resumo Executivo</h2>
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-card">
+                        <div class="metric-icon primary">
+                            <i class="bi bi-send"></i>
+                        </div>
+                        <div class="metric-value" id="totalSentMetric">0</div>
+                        <div class="metric-label">Total Enviado</div>
+                        <div class="metric-change positive" id="totalChange">+0%</div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-card">
+                        <div class="metric-icon success">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                        <div class="metric-value" id="successMetric">0</div>
+                        <div class="metric-label">Sucessos</div>
+                        <div class="metric-change positive" id="successRate">0%</div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-card">
+                        <div class="metric-icon danger">
+                            <i class="bi bi-x-circle"></i>
+                        </div>
+                        <div class="metric-value" id="errorMetric">0</div>
+                        <div class="metric-label">Erros</div>
+                        <div class="metric-change negative" id="errorRate">0%</div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-card">
+                        <div class="metric-icon info">
+                            <i class="bi bi-clock"></i>
+                        </div>
+                        <div class="metric-value" id="durationMetric">0m</div>
+                        <div class="metric-label">Duração</div>
+                        <div class="metric-change positive" id="efficiencyRate">Eficiente</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Insights Automáticos -->
+        <section class="mb-4" id="insightsSection">
+            <div class="insights-card">
+                <h3 class="mb-3">🤖 Insights Automáticos</h3>
+                <div id="insightsList">
+                    <!-- Insights serão inseridos aqui -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Gráficos -->
+        <section class="mb-4">
+            <div class="row">
+                <div class="col-lg-8 mb-4">
+                    <div class="chart-container">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3>📈 Timeline de Envios</h3>
+                            <div class="btn-group" id="timelineButtons" role="group">
+                                <button type="button" class="btn btn-outline-primary btn-sm active"
+                                    onclick="updateTimelineChart('hour', this)">
+                                    Por Hora
+                                </button>
+                                <button type="button" class="btn btn-outline-primary btn-sm"
+                                    onclick="updateTimelineChart('minute', this)">
+                                    Por Minuto
+                                </button>
+                            </div>
+
+                            <!-- NOVO: Toggle para linha total -->
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="showTotalLine"
+                                    onchange="toggleTotalLine()">
+                                <label class="form-check-label" for="showTotalLine">
+                                    <small>Mostrar Total</small>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">🎯 Taxa de Sucesso</h3>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="successChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Timeline de Eventos -->
+        <section class="mb-4">
+            <div class="row">
+                <div class="col-lg-8">
+                    <h3 class="mb-4">📋 Detalhes dos Envios</h3>
+                    <div class="details-table">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Horário</th>
+                                        <th>Nome</th>
+                                        <th>Telefone</th>
+                                        <th>Status</th>
+                                        <th>Mensagem</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detailsTableBody">
+                                    <!-- Dados serão inseridos aqui -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <h3 class="mb-4">⏰ Timeline de Eventos</h3>
+                    <div class="timeline" id="timelineEvents">
+                        <!-- Timeline será inserida aqui -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ações do Relatório -->
+        <div class="row">
+            <div class="col-md-4 mb-2">
+                <button class="action-btn btn-pdf w-100" onclick="generateOptimizedPDF()">
+                    <i class="bi bi-file-pdf me-2"></i>Relatório PDF
+                </button>
+            </div>
+            <div class="col-md-4 mb-2">
+                <button class="action-btn btn-email w-100" onclick="sendByEmail()">
+                    <i class="bi bi-envelope me-2"></i>Enviar por Email
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="relatorio.js"></script>
+</body>
+
+</html>

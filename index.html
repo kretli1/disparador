@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Disparo em Massa - Disparador PRO</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Disparador PRO">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#00D95F">
+    <meta name="msapplication-TileColor" content="#2f3349">
+
+    <!-- Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="img/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/icon-16.png">
+    <link rel="apple-touch-icon" href="img/icon-192.png">
+
+    <!-- Splash Screen -->
+    <meta name="apple-mobile-web-app-title" content="Disparador PRO">
+    <link rel="apple-touch-startup-image" href="img/splash-2048x2732.png"
+        media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+
+    <link href="layout.css" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+    <!-- SheetJS para Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+</head>
+
+<body class="bg-light">
+
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-5">
+                        <div class="login-card p-5 text-center">
+                            <img src="img/logo.png" alt="Disparador PRO" class="login-logo img-fluid mb-4">
+
+                            <h2 class="mb-3 text-dark">Bem-vindo!</h2>
+                            <p class="text-muted mb-4">Digite suas credenciais para acessar o painel</p>
+
+                            <form id="loginForm" class="text-start">
+                                <div class="mb-3">
+                                    <label for="loginInstanceName" class="form-label">
+                                        <i class="bi bi-server me-2"></i>Nome da Instância
+                                    </label>
+                                    <input type="text" class="form-control" id="loginInstanceName"
+                                        placeholder="Digite o nome da instância" required>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="loginAPIKEY" class="form-label">
+                                        <i class="bi bi-key me-2"></i>APIKEY
+                                    </label>
+                                    <input type="password" class="form-control" id="loginAPIKEY"
+                                        placeholder="Digite sua APIKEY" required>
+                                </div>
+
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input" type="checkbox" id="rememberCredentials" checked>
+                                    <label class="form-check-label" for="rememberCredentials">
+                                        Lembrar credenciais
+                                    </label>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-login text-white">
+                                        <i class="bi bi-box-arrow-in-right me-2"></i>Entrar
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div class="mt-4">
+                                <small class="text-muted">
+                                    <i class="bi bi-shield-check me-1"></i>
+                                    Suas credenciais são verificadas via WhatsApp
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aplicação Principal -->
+    <div id="mainApp" class="main-app">
+        <!-- Header ATUALIZADO -->
+        <nav class="navbar navbar-dark bg-gradient-primary shadow-sm">
+            <div class="container-fluid">
+                <img src="img/logo.png" alt="Disparador PRO V2" class="rounded mb-2 mt-2" width="200px">
+
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-light btn-sm me-3" data-bs-toggle="modal"
+                        data-bs-target="#changelogModal">
+                        <i class="bi bi-journal-text me-2"></i>Novidades <span class="badge bg-success">Versão
+                            2.4</span>
+                    </button>
+                    <button class="btn btn-outline-light btn-sm me-3" data-bs-toggle="modal"
+                        data-bs-target="#safetyTipsModal">
+                        <i class="bi bi-shield-check me-2"></i>Dicas de Segurança
+                    </button>
+                    <button id="themeToggle" class="btn btn-outline-light btn-sm me-3" onclick="alternarTema()">
+                        <i class="bi bi-moon-fill me-2" id="themeIcon"></i>Tema
+                    </button>
+                    <button id="logoutBtn" class="btn btn-outline-danger btn-sm" title="Sair">
+                        <i class="bi bi-box-arrow-right me-2"></i>Sair
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- TODO O RESTO DO CONTEÚDO EXISTENTE DO PAINEL PERMANECE IGUAL -->
+        <div class="container-fluid py-4">
+            <div class="row">
+                <!-- Formulário Principal -->
+                <div class="col-lg-6 mb-3">
+                    <div class="card">
+                        <div class="card-header bg-gradient-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Configurações de Disparo</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="bulkForm">
+                                <!-- Adicionar em algum lugar visível -->
+                                <div class="d-flex align-items-center mb-4">
+                                    <i class="bi bi-server me-2"></i>
+                                    <span>Instâncias Ativas: <span id="activeInstancesCount"
+                                            class="badge bg-success">0</span></span>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <!-- Gerenciamento de Instâncias -->
+                                        <div class="card mb-3">
+                                            <div
+                                                class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
+                                                <h6 class="mb-0"><i class="bi bi-server me-2"></i>Gerenciar Instâncias
+                                                    WhatsApp</h6>
+                                                <button type="button" class="btn btn-outline-light btn-sm"
+                                                    data-bs-toggle="collapse" data-bs-target="#instanceForm">
+                                                    <i class="bi bi-plus-circle me-1"></i>Nova Instância
+                                                </button>
+                                            </div>
+
+                                            <!-- Formulário para nova instância (colapsável) -->
+                                            <div class="collapse" id="instanceForm">
+                                                <div class="card-body border-bottom">
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <label for="newInstanceName" class="form-label">Nome da
+                                                                Instância</label>
+                                                            <input type="text" class="form-control" id="newInstanceName"
+                                                                placeholder="Ex: WhatsApp Principal">
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label for="newInstanceAPIKEY"
+                                                                class="form-label">APIKEY</label>
+                                                            <input type="password" class="form-control"
+                                                                id="newInstanceAPIKEY" placeholder="Digite a APIKEY">
+                                                        </div>
+                                                        <div class="col-md-4 d-flex align-items-end">
+                                                            <button type="button" class="btn btn-success w-100"
+                                                                id="addInstanceBtn">
+                                                                <i class="bi bi-plus-circle me-2"></i>Cadastrar
+                                                                Instância
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Lista de instâncias cadastradas -->
+                                            <div class="card-body">
+                                                <div id="instancesList">
+                                                    <div class="text-center text-muted py-4">
+                                                        <i class="bi bi-server fs-3 d-block mb-2"></i>
+                                                        Nenhuma instância cadastrada
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="card mt-3">
+                                            <div class="card-header">
+                                                <h6 class="mb-0">
+                                                    <i class="bi bi-gear me-2"></i>Configurações de Validação & Envio
+                                                    por E-mail
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="enableBrazilianValidation" checked>
+                                                            <label class="form-check-label"
+                                                                for="enableBrazilianValidation">
+                                                                <strong>Validação de números brasileiros</strong>
+                                                                <br>
+                                                                <small class="text-muted">
+                                                                    Quando ativado, valida DDD e formato brasileiro.
+                                                                    Desative para números internacionais.
+                                                                </small>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="alert alert-info mb-0">
+                                                            <i class="bi bi-info-circle me-2"></i>
+                                                            <strong>Números internacionais:</strong><br>
+                                                            <small>
+                                                                Desative a validação brasileira para aceitar números de
+                                                                outros países.
+                                                                Ex: +1234567890, +44123456789, etc.
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12 mb-3">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="enableEmailSending">
+                                                            <label class="form-check-label" for="enableEmailSending">
+                                                                <i class="bi bi-envelope me-1"></i>
+                                                                Enviar também por E-mail
+                                                            </label>
+                                                        </div>
+                                                        <small class="text-muted">Envia a mensagem por WhatsApp e E-mail
+                                                            (quando
+                                                            disponível)</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <div class="row">
+                                    <div class="col-lg-5">
+                                        <!-- Upload de Arquivo Excel -->
+
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <label class="form-label mb-0">
+                                                    <i class="bi bi-file-earmark-spreadsheet me-1"></i>Importar Lista de
+                                                    Contatos (Excel)
+                                                </label>
+                                                <button type="button" class="btn btn-outline-primary btn-sm"
+                                                    id="downloadModelBtn">
+                                                    <i class="bi bi-download me-1"></i>Baixar Modelo
+                                                </button>
+                                            </div>
+
+                                            <div class="file-upload-area" id="fileUploadArea">
+                                                <i class="bi bi-cloud-upload fs-2 text-muted"></i>
+                                                <p class="mt-2 mb-2">Arraste o arquivo Excel aqui ou clique para
+                                                    selecionar
+                                                </p>
+                                                <small class="text-muted">Arquivo deve conter colunas:
+                                                    <strong>Nome</strong>, <strong>Telefone</strong> e
+                                                    <strong>E-mail</strong></small>
+                                                <input type="file" id="excelFile" accept=".xlsx,.xls"
+                                                    style="display: none;">
+                                            </div>
+
+                                            <div id="fileInfo" class="mt-2" style="display: none;">
+                                                <span class="badge bg-success">Arquivo carregado com sucesso!</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7">
+                                        <!-- Lista de Contatos -->
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <label class="form-label mb-0">
+                                                    <i class="bi bi-people me-1"></i>Lista de Contatos
+                                                    <span id="contactCount" class="badge bg-primary ms-2">0
+                                                        contatos</span>
+                                                </label>
+                                                <div>
+                                                    <button type="button" class="btn btn-outline-success btn-sm me-1"
+                                                        id="exportContactsBtn" title="Exportar contatos"
+                                                        style="display: none;">
+                                                        <i class="bi bi-file-earmark-excel me-1"></i>Exportar
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm"
+                                                        id="clearContactsBtn" title="Limpar lista"
+                                                        style="display: none;">
+                                                        <i class="bi bi-trash me-1"></i>Limpar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div id="contactsList" class="border rounded p-3"
+                                                style="height: 225px; overflow-y: auto; background: #fafafa;">
+                                                <p class="text-muted text-center mb-0">Importe um arquivo Excel para
+                                                    visualizar os
+                                                    contatos</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <!-- Informações sobre a planilha modelo -->
+                                        <div class="alert alert-info mt-2 py-2">
+                                            <small>
+                                                <i class="bi bi-info-circle me-1"></i>
+                                                <strong>Dica:</strong> Baixe a planilha modelo para garantir que suas
+                                                colunas estejam no formato correto:
+                                                <strong>Nome</strong>, <strong>Telefone</strong> e
+                                                <strong>E-mail</strong>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Intervalo Randômico -->
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label for="minInterval" class="form-label">
+                                            <i class="bi bi-clock me-1"></i>Intervalo Mínimo (segundos)
+                                        </label>
+                                        <input type="number" class="form-control" id="minInterval" value="30" min="30"
+                                            required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="maxInterval" class="form-label">
+                                            <i class="bi bi-clock-history me-1"></i>Intervalo Máximo (segundos)
+                                        </label>
+                                        <input type="number" class="form-control" id="maxInterval" value="50" min="50"
+                                            required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="ia" class="form-label">
+                                            <i class="bi bi-robot me-1"></i>Usar IA?
+                                        </label>
+                                        <select class="form-control" id="ia">
+                                            <option value="1">Sim</option>
+                                            <option value="0">Não</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <!-- Controle de Lotes -->
+
+                                    <div class="col-6">
+                                        <div class="card">
+                                            <div class="card-header bg-warning text-dark">
+                                                <h6 class="mb-0">
+                                                    <i class="bi bi-pause-circle me-2"></i>Controle de Lotes e Pausas
+                                                    Longas
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        id="enableBatchPause">
+                                                    <label class="form-check-label" for="enableBatchPause">
+                                                        <strong>Ativar pausas automáticas em lotes</strong>
+                                                    </label>
+                                                </div>
+
+                                                <div id="batchPauseOptions" style="display: none;">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label for="batchSize" class="form-label">Mensagens por
+                                                                lote</label>
+                                                            <input type="number" class="form-control" id="batchSize"
+                                                                value="10" min="1">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="batchPauseDuration" class="form-label">Pausa
+                                                                (minutos)</label>
+                                                            <input type="number" class="form-control"
+                                                                id="batchPauseDuration" value="10" min="1">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <!-- Agendamento -->
+
+                                    <div class="col-6">
+                                        <div class="card">
+                                            <div class="card-header bg-secondary text-white">
+                                                <h6 class="mb-0">
+                                                    <i class="bi bi-calendar-event me-2"></i>Agendamento de Disparo
+                                                    (Opcional)
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        id="enableScheduling">
+                                                    <label class="form-check-label" for="enableScheduling">
+                                                        <strong>Agendar este disparo</strong>
+                                                    </label>
+                                                </div>
+
+                                                <div id="schedulingOptions" style="display: none;">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label for="scheduleDate" class="form-label">
+                                                                <i class="bi bi-calendar me-1"></i>Data
+                                                            </label>
+                                                            <input type="date" class="form-control" id="scheduleDate"
+                                                                onchange="validateScheduleDate()">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="scheduleTime" class="form-label">
+                                                                <i class="bi bi-clock me-1"></i>Horário
+                                                            </label>
+                                                            <input type="time" class="form-control" id="scheduleTime">
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-3">
+                                                        <div class="alert alert-info">
+                                                            <i class="bi bi-info-circle me-2"></i>
+                                                            <strong>Importante:</strong> Mantenha esta aba do navegador
+                                                            aberta até o horário do disparo.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modo Múltiplas Mensagens -->
+                                <div id="multipleMessagesMode" style="display: none;">
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        <strong>Modo Múltiplas Mensagens:</strong> Configure até 3 mensagens diferentes.
+                                        Durante o envio, uma mensagem será escolhida aleatoriamente para cada contato.
+                                    </div>
+
+                                    <!-- Navegação por abas -->
+                                    <ul class="nav nav-tabs" id="messagesTabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="msg1-tab" data-bs-toggle="tab"
+                                                data-bs-target="#msg1-pane" type="button" role="tab">
+                                                <i class="bi bi-1-circle me-1"></i>Mensagem 1
+                                                <span class="badge bg-danger ms-2" id="msg1-status"
+                                                    style="display: none;">!</span>
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="msg2-tab" data-bs-toggle="tab"
+                                                data-bs-target="#msg2-pane" type="button" role="tab">
+                                                <i class="bi bi-2-circle me-1"></i>Mensagem 2
+                                                <span class="badge bg-danger ms-2" id="msg2-status"
+                                                    style="display: none;">!</span>
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="msg3-tab" data-bs-toggle="tab"
+                                                data-bs-target="#msg3-pane" type="button" role="tab">
+                                                <i class="bi bi-3-circle me-1"></i>Mensagem 3
+                                                <span class="badge bg-danger ms-2" id="msg3-status"
+                                                    style="display: none;">!</span>
+                                            </button>
+                                        </li>
+                                    </ul>
+
+                                    <!-- Conteúdo das abas -->
+                                    <div class="tab-content" id="messagesTabContent">
+                                        <!-- Mensagem 1 -->
+                                        <div class="tab-pane fade show active" id="msg1-pane" role="tabpanel">
+                                            <div class="card border-0">
+                                                <div class="card-body px-0">
+                                                    <div class="form-check mb-3">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            id="msg1-enabled" checked>
+                                                        <label class="form-check-label fw-bold" for="msg1-enabled">
+                                                            Ativar Mensagem 1
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label for="msg1-media" class="form-label">
+                                                            <i class="bi bi-paperclip me-1"></i>Arquivo/Mídia (Opcional)
+                                                        </label>
+                                                        <input type="file" class="form-control msg-media-input"
+                                                            id="msg1-media" accept="image/*,video/*,.pdf">
+                                                        <div class="msg-file-preview" id="msg1-media-preview"
+                                                            style="display: none;"></div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label for="msg1-text" class="form-label">
+                                                            <i class="bi bi-chat-text me-1"></i>Texto da Mensagem
+                                                        </label>
+
+                                                        <!-- Editor Rico para Mensagem 1 -->
+                                                        <div class="rich-text-editor" id="msg1TextEditor">
+                                                            <!-- Toolbar -->
+                                                            <div class="rich-text-toolbar">
+                                                                <button type="button" class="toolbar-btn"
+                                                                    id="msg1BoldBtn" title="Negrito (*texto*)">
+                                                                    <i class="bi bi-type-bold"></i>
+                                                                    <span>Negrito</span>
+                                                                </button>
+                                                                <button type="button" class="toolbar-btn"
+                                                                    id="msg1ItalicBtn" title="Itálico (_texto_)">
+                                                                    <i class="bi bi-type-italic"></i>
+                                                                    <span>Itálico</span>
+                                                                </button>
+                                                                <div
+                                                                    style="width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px;">
+                                                                </div>
+                                                                <button type="button"
+                                                                    class="toolbar-btn toolbar-tag-btn" id="msg1NameBtn"
+                                                                    title="Inserir tag {nome}">
+                                                                    <i class="bi bi-person"></i>
+                                                                    <span>{nome}</span>
+                                                                </button>
+                                                                <button type="button"
+                                                                    class="toolbar-btn toolbar-tag-btn"
+                                                                    id="msg1GreetingBtn" title="Inserir tag {saudacao}">
+                                                                    <i class="bi bi-sun"></i>
+                                                                    <span>{saudacao}</span>
+                                                                </button>
+                                                                <div
+                                                                    style="width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px;">
+                                                                </div>
+                                                                <button type="button" class="toolbar-btn"
+                                                                    id="msg1ClearFormatBtn" title="Limpar formatação">
+                                                                    <i class="bi bi-eraser"></i>
+                                                                    <span>Limpar</span>
+                                                                </button>
+                                                            </div>
+
+                                                            <!-- Área de texto -->
+                                                            <textarea class="rich-text-area" id="msg1-text"
+                                                                placeholder="Digite a primeira mensagem... Use {nome} para personalizar com o nome do contato e {saudacao} para saudação automática.&#10;&#10;Dicas:&#10;• Selecione texto e clique em Negrito ou Itálico&#10;• Ou digite diretamente: *negrito* e _itálico_"
+                                                                maxlength="4096"></textarea>
+
+                                                            <!-- Contador de caracteres -->
+                                                            <div class="char-counter" id="msg1CharCounter">0/4096</div>
+                                                        </div>
+
+                                                        <!-- Informações sobre formatação -->
+                                                        <div class="format-info">
+                                                            <strong><i class="bi bi-info-circle me-1"></i>Tags:</strong>
+                                                            Use <strong>{nome}</strong> para personalizar com o nome e
+                                                            <strong>{saudacao}</strong>
+                                                            para adicionar saudação automática (Bom dia/Boa tarde/Boa
+                                                            noite).<br>
+                                                            <strong><i class="bi bi-info-circle me-1"></i>Formatação
+                                                                WhatsApp:</strong>
+                                                            Use *texto* para <strong>negrito</strong> e _texto_ para
+                                                            <em>itálico</em>.
+                                                            A formatação será aplicada automaticamente no WhatsApp.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Mensagem 2 -->
+                                        <div class="tab-pane fade" id="msg2-pane" role="tabpanel">
+                                            <div class="card border-0">
+                                                <div class="card-body px-0">
+                                                    <div class="form-check mb-3">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            id="msg2-enabled">
+                                                        <label class="form-check-label fw-bold" for="msg2-enabled">
+                                                            Ativar Mensagem 2
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label for="msg2-media" class="form-label">
+                                                            <i class="bi bi-paperclip me-1"></i>Arquivo/Mídia (Opcional)
+                                                        </label>
+                                                        <input type="file" class="form-control msg-media-input"
+                                                            id="msg2-media" accept="image/*,video/*,.pdf">
+                                                        <div class="msg-file-preview" id="msg2-media-preview"
+                                                            style="display: none;"></div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label for="msg2-text" class="form-label">
+                                                            <i class="bi bi-chat-text me-1"></i>Texto da Mensagem
+                                                        </label>
+
+                                                        <!-- Editor Rico para Mensagem 2 -->
+                                                        <div class="rich-text-editor" id="msg2TextEditor">
+                                                            <!-- Toolbar -->
+                                                            <div class="rich-text-toolbar">
+                                                                <button type="button" class="toolbar-btn"
+                                                                    id="msg2BoldBtn" title="Negrito (*texto*)">
+                                                                    <i class="bi bi-type-bold"></i>
+                                                                    <span>Negrito</span>
+                                                                </button>
+                                                                <button type="button" class="toolbar-btn"
+                                                                    id="msg2ItalicBtn" title="Itálico (_texto_)">
+                                                                    <i class="bi bi-type-italic"></i>
+                                                                    <span>Itálico</span>
+                                                                </button>
+                                                                <div
+                                                                    style="width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px;">
+                                                                </div>
+                                                                <button type="button"
+                                                                    class="toolbar-btn toolbar-tag-btn" id="msg2NameBtn"
+                                                                    title="Inserir tag {nome}">
+                                                                    <i class="bi bi-person"></i>
+                                                                    <span>{nome}</span>
+                                                                </button>
+                                                                <button type="button"
+                                                                    class="toolbar-btn toolbar-tag-btn"
+                                                                    id="msg2GreetingBtn" title="Inserir tag {saudacao}">
+                                                                    <i class="bi bi-sun"></i>
+                                                                    <span>{saudacao}</span>
+                                                                </button>
+                                                                <div
+                                                                    style="width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px;">
+                                                                </div>
+                                                                <button type="button" class="toolbar-btn"
+                                                                    id="msg2ClearFormatBtn" title="Limpar formatação">
+                                                                    <i class="bi bi-eraser"></i>
+                                                                    <span>Limpar</span>
+                                                                </button>
+                                                            </div>
+
+                                                            <!-- Área de texto -->
+                                                            <textarea class="rich-text-area" id="msg2-text"
+                                                                placeholder="Digite a primeira mensagem... Use {nome} para personalizar com o nome do contato e {saudacao} para saudação automática.&#10;&#10;Dicas:&#10;• Selecione texto e clique em Negrito ou Itálico&#10;• Ou digite diretamente: *negrito* e _itálico_"
+                                                                maxlength="4096"></textarea>
+
+                                                            <!-- Contador de caracteres -->
+                                                            <div class="char-counter" id="msg2CharCounter">0/4096</div>
+                                                        </div>
+
+                                                        <!-- Informações sobre formatação -->
+                                                        <div class="format-info">
+                                                            <strong><i class="bi bi-info-circle me-1"></i>Tags:</strong>
+                                                            Use <strong>{nome}</strong> para personalizar com o nome e
+                                                            <strong>{saudacao}</strong>
+                                                            para adicionar saudação automática (Bom dia/Boa tarde/Boa
+                                                            noite).<br>
+                                                            <strong><i class="bi bi-info-circle me-1"></i>Formatação
+                                                                WhatsApp:</strong>
+                                                            Use *texto* para <strong>negrito</strong> e _texto_ para
+                                                            <em>itálico</em>.
+                                                            A formatação será aplicada automaticamente no WhatsApp.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Mensagem 3 -->
+                                        <div class="tab-pane fade" id="msg3-pane" role="tabpanel">
+                                            <div class="card border-0">
+                                                <div class="card-body px-0">
+                                                    <div class="form-check mb-3">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            id="msg3-enabled">
+                                                        <label class="form-check-label fw-bold" for="msg3-enabled">
+                                                            Ativar Mensagem 3
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label for="msg3-media" class="form-label">
+                                                            <i class="bi bi-paperclip me-1"></i>Arquivo/Mídia (Opcional)
+                                                        </label>
+                                                        <input type="file" class="form-control msg-media-input"
+                                                            id="msg3-media" accept="image/*,video/*,.pdf">
+                                                        <div class="msg-file-preview" id="msg3-media-preview"
+                                                            style="display: none;"></div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label for="msg3-text" class="form-label">
+                                                            <i class="bi bi-chat-text me-1"></i>Texto da Mensagem
+                                                        </label>
+
+                                                        <!-- Editor Rico para Mensagem 1 -->
+                                                        <div class="rich-text-editor" id="msg3TextEditor">
+                                                            <!-- Toolbar -->
+                                                            <div class="rich-text-toolbar">
+                                                                <button type="button" class="toolbar-btn"
+                                                                    id="msg3BoldBtn" title="Negrito (*texto*)">
+                                                                    <i class="bi bi-type-bold"></i>
+                                                                    <span>Negrito</span>
+                                                                </button>
+                                                                <button type="button" class="toolbar-btn"
+                                                                    id="msg3ItalicBtn" title="Itálico (_texto_)">
+                                                                    <i class="bi bi-type-italic"></i>
+                                                                    <span>Itálico</span>
+                                                                </button>
+                                                                <div
+                                                                    style="width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px;">
+                                                                </div>
+                                                                <button type="button"
+                                                                    class="toolbar-btn toolbar-tag-btn" id="msg3NameBtn"
+                                                                    title="Inserir tag {nome}">
+                                                                    <i class="bi bi-person"></i>
+                                                                    <span>{nome}</span>
+                                                                </button>
+                                                                <button type="button"
+                                                                    class="toolbar-btn toolbar-tag-btn"
+                                                                    id="msg3GreetingBtn" title="Inserir tag {saudacao}">
+                                                                    <i class="bi bi-sun"></i>
+                                                                    <span>{saudacao}</span>
+                                                                </button>
+                                                                <div
+                                                                    style="width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px;">
+                                                                </div>
+                                                                <button type="button" class="toolbar-btn"
+                                                                    id="msg3ClearFormatBtn" title="Limpar formatação">
+                                                                    <i class="bi bi-eraser"></i>
+                                                                    <span>Limpar</span>
+                                                                </button>
+                                                            </div>
+
+                                                            <!-- Área de texto -->
+                                                            <textarea class="rich-text-area" id="msg3-text"
+                                                                placeholder="Digite a primeira mensagem... Use {nome} para personalizar com o nome do contato e {saudacao} para saudação automática.&#10;&#10;Dicas:&#10;• Selecione texto e clique em Negrito ou Itálico&#10;• Ou digite diretamente: *negrito* e _itálico_"
+                                                                maxlength="4096"></textarea>
+
+                                                            <!-- Contador de caracteres -->
+                                                            <div class="char-counter" id="msg3CharCounter">0/4096</div>
+                                                        </div>
+
+                                                        <!-- Informações sobre formatação -->
+                                                        <div class="format-info">
+                                                            <strong><i class="bi bi-info-circle me-1"></i>Tags:</strong>
+                                                            Use <strong>{nome}</strong> para personalizar com o nome e
+                                                            <strong>{saudacao}</strong>
+                                                            para adicionar saudação automática (Bom dia/Boa tarde/Boa
+                                                            noite).<br>
+                                                            <strong><i class="bi bi-info-circle me-1"></i>Formatação
+                                                                WhatsApp:</strong>
+                                                            Use *texto* para <strong>negrito</strong> e _texto_ para
+                                                            <em>itálico</em>.
+                                                            A formatação será aplicada automaticamente no WhatsApp.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Resumo das mensagens ativas -->
+                                    <div class="alert alert-success mt-3" id="activeMessagesInfo">
+                                        <i class="bi bi-check-circle me-2"></i>
+                                        <span id="activeMessagesCount">1 mensagem ativa</span>
+                                    </div>
+                                </div>
+
+
+                                <!-- Botão de Disparo -->
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-whatsapp btn-lg">
+                                        <i class="bi bi-send me-2"></i>Disparar Mensagens
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview da Mensagem -->
+                <div class="col-lg-3 mb-3">
+                    <div class="card" style="position: fixed; width: 23.5%">
+                        <div class="card-header bg-gradient-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-eye me-2"></i>Preview da Mensagem</h5>
+                        </div>
+                        <div class="card-body p-3">
+                            <div class="whatsapp-preview" id="previewContainer">
+                                <div class="whatsapp-header">
+                                    <div class="whatsapp-avatar" id="previewAvatar">
+                                        J
+                                    </div>
+                                    <div class="whatsapp-contact-info">
+                                        <h6 id="previewContactName">João Silva</h6>
+                                        <small>online</small>
+                                    </div>
+                                </div>
+
+                                <div class="mb-2 text-center">
+                                    <small class="badge bg-info" id="currentPreviewMessage">Mensagem 1</small>
+                                </div>
+
+                                <div id="previewContent">
+                                    <div class="preview-placeholder">
+                                        <i class="bi bi-chat-dots fs-3 mb-2 d-block"></i>
+                                        Configure mensagens nas abas para visualizar
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Painel de Estatísticas -->
+                <div class="col-lg-3 mb-3">
+                    <div class="card mb-4">
+                        <div class="card-header bg-gradient-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Estatísticas</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <h3 id="totalSent" class="mb-0">0</h3>
+                                    <small>Total</small>
+                                </div>
+                                <div class="col-4">
+                                    <h3 id="successCount" class="mb-0 text-success">0</h3>
+                                    <small>Sucesso</small>
+                                </div>
+                                <div class="col-4">
+                                    <h3 id="errorCount" class="mb-0 text-danger">0</h3>
+                                    <small>Erro</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estimativa de Tempo -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-gradient-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-stopwatch me-2"></i>Tempo</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="timeEstimate">
+                                <div class="text-center text-muted">
+                                    <small>Importe contatos para ver estimativa</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Resultados -->
+                    <div class="card">
+                        <div class="card-header bg-gradient-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Resultados</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="resultsChart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Barra de Progresso -->
+                    <div class="card mt-4 progress-container">
+                        <div class="card-header bg-gradient-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-hourglass-split me-2"></i>Progresso do Envio</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold">Status:</span>
+                                <span id="progressText" class="badge bg-primary">0/0</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
+                                    id="progressBar" role="progressbar" style="width: 0%"></div>
+                            </div>
+
+                            <div id="nextSendTimer" class="alert alert-info mt-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-clock me-2"></i>
+                                        <strong>Próximo envio em:</strong>
+                                    </div>
+                                    <div>
+                                        <span id="timerCountdown" class="badge bg-primary fs-6">00:00</span>
+                                    </div>
+                                </div>
+                                <div class="progress mt-2" style="height: 4px;">
+                                    <div id="timerProgress" class="progress-bar bg-primary" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-warning" id="pauseButton" style="display: none;">
+                                    <i class="bi bi-pause-circle me-2"></i>Pausar Envio
+                                </button>
+                                <button type="button" class="btn btn-danger" id="stopButton">
+                                    <i class="bi bi-stop-circle me-2"></i>Parar Envio
+                                </button>
+                                <button type="button" class="btn btn-info" id="reportButton" style="display: none;">
+                                    <i class="bi bi-bar-chart me-2"></i>Ver Relatório
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <!-- Agendamentos Ativos -->
+                <div class="col-12 mt-4" id="scheduledSection" style="display: none;">
+                    <div class="card">
+                        <div
+                            class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Agendamentos Ativos</h5>
+                            <span id="scheduledCount" class="badge bg-light text-dark">0</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Data/Hora Agendada</th>
+                                            <th>Instância</th>
+                                            <th>Contatos</th>
+                                            <th>Tempo Restante</th>
+                                            <th>Status</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="scheduledTableBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Histórico de Envios -->
+                <div class="col-12 mt-4">
+                    <div class="card">
+                        <div
+                            class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Histórico de Envios</h5>
+                            <div>
+                                <button type="button" class="btn btn-outline-light btn-sm me-2" id="exportHistoryBtn"
+                                    style="display: none;">
+                                    <i class="bi bi-file-earmark-excel me-1"></i>Exportar Excel
+                                </button>
+                                <button type="button" class="btn btn-outline-light btn-sm" id="clearHistoryButton">
+                                    <i class="bi bi-trash me-1"></i>Limpar Histórico
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0" id="historyTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Data/Hora</th>
+                                            <th>Instância</th>
+                                            <th>Total Contatos</th>
+                                            <th>Sucessos</th>
+                                            <th>Erros</th>
+                                            <th>Taxa Sucesso</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="historyTableBody">
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted py-4">
+                                                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                                                Nenhum envio realizado ainda
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backup de Dados -->
+                <div class="col-12 mt-4">
+                    <div class="card">
+                        <div class="card-header bg-gradient-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-shield-check me-2"></i>Backup & Restore</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>O backup inclui:</strong> Histórico completo, lista de contatos, configurações
+                                da
+                                instância, mensagens e arquivos de mídia.
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h6><i class="bi bi-download me-2"></i>Fazer Backup</h6>
+                                    <p class="text-muted">Exporte todos os seus dados em um arquivo seguro para
+                                        restaurar
+                                        posteriormente.</p>
+                                    <button type="button" class="btn btn-primary" id="exportBackupBtn">
+                                        <i class="bi bi-download me-2"></i>Fazer Backup Completo
+                                    </button>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6><i class="bi bi-upload me-2"></i>Restaurar Backup</h6>
+                                    <p class="text-muted">Importe um backup anterior para restaurar todos os seus dados
+                                        e
+                                        configurações.</p>
+                                    <button type="button" class="btn btn-secondary" id="importBackupBtn">
+                                        <i class="bi bi-upload me-2"></i>Restaurar Backup
+                                    </button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="button" class="btn btn-outline-warning" id="clearSettingsBtn">
+                                        <i class="bi bi-trash me-2"></i>Limpar Cache do Navegador
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Verificação de Conexão -->
+    <div class="modal fade" id="connectionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-whatsapp me-2"></i>Status da Conexão WhatsApp
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div id="connectionStatus">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Verificando...</span>
+                        </div>
+                        <p class="mt-2">Verificando status da conexão...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="recheckConnection" style="display: none;">
+                        <i class="bi bi-arrow-clockwise me-2"></i>Verificar Novamente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Changelog -->
+    <div class="modal fade" id="changelogModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-gradient-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Disparador PRO V2 - Novidades
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+
+                    <!-- Versão 2.4 (Histórico) -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-success fs-6 me-3">v2.4</span>
+                            <small class="text-muted">Versão Atual - Junho 2025</small>
+                        </div>
+
+                        <h6 class="text-secondary mb-2"> Versão Atualizada</h6>
+                        <ul class="list-unstyled ms-3">
+                            <li>• Tela de login, autenticação pela instância e APIKEY</li>
+                            <li>• Configuração de Validação de Números</li>
+                            <li>• Melhoria no Resumo de Processamento da lista</li>
+                            <li>• Verificação do tamanho da mídia</li>
+                            <li>• Botão para adicionar a Tag {nome} e {saudação}</li>
+                            <li>• Temporizador para o próximo envio</li>
+                            <li>• Melhorias no gráfico do relatório</li>
+                        </ul>
+                    </div>
+
+                    <hr>
+
+                    <!-- Versão 2.3 (Histórico) -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-secondary fs-6 me-3">v2.3</span>
+                            <small class="text-muted">Junho 2025</small>
+                        </div>
+
+                        <ul class="list-unstyled ms-3">
+                            <li>• Instalador fácil do Disparador PRO</li>
+                            <li>• Controle de lotes e pausas longas</li>
+                            <li>• Pode confirgurar 3 mensagens diferentes (multiplas mensagens)</li>
+                            <li>• Personalização de mensagem (negrito e itálico)</li>
+                            <li>• Download de modelo de planilha</li>
+                            <li>• Dicas de segurança e configuração de intervalo seguro</li>
+                            <li>• Melhorias na página de relatório</li>
+                            <li>• Melhorias no layout</li>
+                        </ul>
+                    </div>
+
+                    <hr>
+
+
+                    <!-- Versão 2.2 (Histórico) -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-secondary fs-6 me-3">v2.2</span>
+                            <small class="text-muted">Junho 2025</small>
+                        </div>
+
+                        <ul class="list-unstyled ms-3">
+                            <li>• Gerenciamento de Instâncias</li>
+                            <li>• Adição de E-mail para lista de disparo</li>
+                            <li>• Aceita mídia em formato de imagem, vídeo e PDF</li>
+                            <li>• Botão para limpar cache do navegador</li>
+                            <li>• Adição das novas funcionalidades no backup e restore</li>
+                            <li>• Ajuste no relatório para as novas funcionalidades.</li>
+                            <li>• Organização das funções para melhor manutenção</li>
+                        </ul>
+                    </div>
+
+                    <hr>
+
+                    <!-- Versão 2.1 (Histórico) -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-secondary fs-6 me-3">v2.1</span>
+                            <small class="text-muted">Junho 2025</small>
+                        </div>
+
+                        <ul class="list-unstyled ms-3">
+                            <li>• Fazer e restaurar backup de disparo</li>
+                            <li>• Auto Save das configurações</li>
+                            <li>• Melhoria visual do relatório</li>
+                            <li>• Envio de relatório por e-mail</li>
+                            <li>• Exporta lista de contato ajustada</li>
+                            <li>• Exporta histórico de envio para excel</li>
+                        </ul>
+                    </div>
+
+                    <hr>
+
+                    <!-- Versão 2.0 -->
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="badge bg-secondary fs-6 me-3">v2.0</span>
+                            <small class="text-muted">Maio 2025</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="bi bi-calendar-check text-primary me-2"></i>Agendamento</h6>
+                                <ul class="list-unstyled ms-3 mb-3">
+                                    <li>• Agendar disparos para data/hora específica</li>
+                                    <li>• Timer visual com tempo restante</li>
+                                    <li>• Múltiplos agendamentos simultâneos</li>
+                                    <li>• Notificação 5 minutos antes do envio</li>
+                                </ul>
+
+                                <h6><i class="bi bi-play-btn text-warning me-2"></i>Controle de Envio</h6>
+                                <ul class="list-unstyled ms-3 mb-3">
+                                    <li>• Pausar e retomar envios</li>
+                                    <li>• Parar disparo a qualquer momento</li>
+                                    <li>• Status visual em tempo real</li>
+                                </ul>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h6><i class="bi bi-telephone text-success me-2"></i>Validação Avançada</h6>
+                                <ul class="list-unstyled ms-3 mb-3">
+                                    <li>• Formatação automática de telefones</li>
+                                    <li>• Validação de DDDs brasileiros</li>
+                                    <li>• Detecção de números inválidos</li>
+                                    <li>• Remoção automática de números repetidos</li>
+                                </ul>
+
+                                <h6><i class="bi bi-clock-history text-info me-2"></i>Analytics</h6>
+                                <ul class="list-unstyled ms-3 mb-3">
+                                    <li>• Histórico completo de envios</li>
+                                    <li>• Estimativa de tempo em tempo real</li>
+                                    <li>• Relatórios PDF detalhados</li>
+                                    <li>• Gráficos de performance</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="bi bi-wifi text-primary me-2"></i>Conectividade</h6>
+                                <ul class="list-unstyled ms-3 mb-3">
+                                    <li>• Verificação de status WhatsApp</li>
+                                    <li>• QR Code com auto-refresh (30s)</li>
+                                    <li>• Instruções de conexão integradas</li>
+                                </ul>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h6><i class="bi bi-phone text-secondary me-2"></i>PWA</h6>
+                                <ul class="list-unstyled ms-3 mb-3">
+                                    <li>• Instalável como app nativo</li>
+                                    <li>• Atualizações automáticas</li>
+                                    <li>• Interface mobile otimizada</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Versão 1.0 (Histórico) -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-secondary fs-6 me-3">v1.0</span>
+                            <small class="text-muted">Abril 2025</small>
+                        </div>
+
+                        <ul class="list-unstyled ms-3">
+                            <li>• Disparo básico em massa</li>
+                            <li>• Import de Excel (Nome/Telefone)</li>
+                            <li>• Personalização com {nome}</li>
+                            <li>• Intervalos randômicos</li>
+                            <li>• Preview de mensagem estilo WhatsApp</li>
+                            <li>• Tema claro/escuro</li>
+                        </ul>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <!-- <a href="#" class="btn btn-primary">
+                        <i class="bi bi-star me-2"></i>Avaliar App
+                    </a> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Dicas de Segurança -->
+    <div class="modal fade" id="safetyTipsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-gradient-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-shield-check me-2"></i>Dicas de Segurança para Disparo em Massa
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Guia completo para usar o WhatsApp com responsabilidade e eficiência</strong>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Limites e Restrições
+                                        Críticas</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled mb-0">
+                                        <li class="mb-2"><i
+                                                class="bi bi-check-circle text-success me-2"></i><strong>Máximo 50-100
+                                                mensagens por dia</strong> por número para evitar bloqueio</li>
+                                        <li class="mb-2"><i
+                                                class="bi bi-check-circle text-success me-2"></i><strong>Intervalo
+                                                mínimo de 60-120 segundos</strong> entre cada envio</li>
+                                        <li class="mb-2"><i
+                                                class="bi bi-check-circle text-success me-2"></i><strong>Nunca envie
+                                                SPAM</strong> - apenas para contatos que consentiram</li>
+                                        <li class="mb-2"><i
+                                                class="bi bi-check-circle text-success me-2"></i><strong>Evite horários
+                                                inadequados</strong> - respeite 8h às 20h</li>
+                                        <li class="mb-0"><i class="bi bi-check-circle text-success me-2"></i><strong>Use
+                                                múltiplos números</strong> para distribuir a carga</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0"><i class="bi bi-clock me-2"></i>Configurações de Agendamento
+                                        Inteligente</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled mb-0">
+                                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i><strong>Use
+                                                o agendamento</strong> para distribuir envios ao longo do dia</li>
+                                        <li class="mb-2"><i
+                                                class="bi bi-check-circle text-success me-2"></i><strong>Configure pausa
+                                                automática</strong> a cada 10 envios aguardar 10 minutos</li>
+                                        <li class="mb-2"><i
+                                                class="bi bi-check-circle text-success me-2"></i><strong>Agende para
+                                                horários comerciais</strong> (9h-18h)</li>
+                                        <li class="mb-2"><i
+                                                class="bi bi-check-circle text-success me-2"></i><strong>Evite feriados
+                                                e fins de semana</strong> para mensagens comerciais</li>
+                                        <li class="mb-0"><i
+                                                class="bi bi-check-circle text-success me-2"></i><strong>Teste com
+                                                pequenos grupos</strong> antes do envio em massa</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="bi bi-robot me-2"></i>Personalização com IA</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled mb-0">
+                                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i><strong>Use
+                                                variáveis {nome} e {saudacao}</strong> para personalizar mensagens</li>
+                                        <li class="mb-2"><i
+                                                class="bi bi-check-circle text-success me-2"></i><strong>Utilize a
+                                                IA</strong> para fazer alterações no texto</li>
+                                        <li class="mb-2"><i
+                                                class="bi bi-check-circle text-success me-2"></i><strong>Mensagens
+                                                únicas</strong> aumentam taxa de engajamento</li>
+                                        <li class="mb-0"><i
+                                                class="bi bi-check-circle text-success me-2"></i><strong>Segmente sua
+                                                lista</strong> por interesse ou localização</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0"><i class="bi bi-check-square me-2"></i>Validação e Qualidade da
+                                        Lista</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled mb-0">
+                                        <li class="mb-2"><i
+                                                class="bi bi-check-circle text-success me-2"></i><strong>Sempre valide
+                                                números</strong> antes do envio</li>
+                                        <li class="mb-2"><i
+                                                class="bi bi-check-circle text-success me-2"></i><strong>Remova números
+                                                inválidos</strong> da lista regularmente</li>
+                                        <li class="mb-2"><i
+                                                class="bi bi-check-circle text-success me-2"></i><strong>Mantenha listas
+                                                atualizadas</strong> com backup completo</li>
+                                        <li class="mb-0"><i
+                                                class="bi bi-check-circle text-success me-2"></i><strong>Monitore
+                                                relatórios</strong> para otimizar campanhas</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <h6><i class="bi bi-shield-exclamation me-2"></i>Importante</h6>
+                        <p class="mb-0">Estas são recomendações baseadas nas melhores práticas para uso seguro do
+                            WhatsApp. O sistema já implementa muitas dessas funcionalidades automaticamente, mas é
+                            importante que você entenda e siga essas diretrizes para evitar bloqueios.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x me-2"></i>Fechar
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="startSafeConfiguration()">
+                        <i class="bi bi-gear me-2"></i>Configurar Intervalos Seguros
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- jsPDF para geração de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- Notiflix JS -->
+    <script src="notiflix/dist/notiflix-aio-3.2.8.min.js"></script>
+
+    <script src="main.js"></script>
+
+</body>
+
+</html>

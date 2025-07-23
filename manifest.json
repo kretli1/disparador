@@ -1,0 +1,36 @@
+{
+  "name": "Disparador PRO V2",
+  "short_name": "Disparador PRO",
+  "description": "Sistema de disparo em massa para WhatsApp",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#2f3349",
+  "theme_color": "#00D95F",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["business", "productivity", "utilities"],
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "shortcuts": [
+    {
+      "name": "Novo Disparo",
+      "short_name": "Disparo",
+      "description": "Iniciar novo disparo de mensagens",
+      "url": "./index.html",
+      "icons": [{ "src": "img/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
